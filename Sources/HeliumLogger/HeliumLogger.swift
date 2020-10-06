@@ -25,6 +25,8 @@ public enum TerminalColor: String {
     case red = "\u{001B}[0;31m" // red
     /// Log text in yellow, used for warning messages.
     case yellow = "\u{001B}[0;33m" // yellow
+    /// Log text in grey, used for debug messages.
+    case grey = "\u{001B}[0;30;1m" // grey
     /// Log text in the terminal's default foreground color.
     case foreground = "\u{001B}[0;39m" // default foreground color
     /// Log text in the terminal's default background color.
@@ -46,7 +48,7 @@ public enum HeliumLoggerFormatValues: String {
     case logType = "(%type)"
     /// The time and date at which the message was logged.
     case date = "(%date)"
-    
+
     static let all: [HeliumLoggerFormatValues] = [
         .message, .function, .line, .file, .logType, .date
     ]
@@ -59,7 +61,7 @@ public enum HeliumLoggerSwiftLogFormatValues: String {
     case metadata = "(%metadata)"
     /// The label of the logger used by SwiftLog.
     case label = "(%label)"
-    
+
     static let all: [HeliumLoggerSwiftLogFormatValues] = [
         .metadata, .label
     ]
@@ -84,11 +86,11 @@ public class HeliumLogger {
     /// A Boolean value indicating whether to use the detailed logging format when a user logging format is not
     /// specified.
     public var details: Bool = true
-    
+
     /// A Boolean value indicating whether to include SwiftLog metadata in the logging format when a user
     /// logging format is not specified.
     public var includeMetadata: Bool = true
-    
+
     /// A Boolean value indicating whether to include SwiftLog label in the logging format when a user
     /// logging format is not specified.
     public var includeLabel: Bool = true
@@ -262,7 +264,7 @@ public class HeliumLogger {
 
 /// Implement the `LoggerAPI` protocol in the `HeliumLogger` class.
 extension HeliumLogger : Logger {
-    
+
     /// Output a logged message.
     ///
     /// - Parameter type: The type of the message (`LoggerMessageType`) being logged.
@@ -330,26 +332,26 @@ extension HeliumLogger : Logger {
             message = line
         } else {
             var segments = [String]()
-            
+
             segments.append("[\(formatDate())]")
-            
+
             if includeLabel, let label = label {
                 segments.append("[\(label)]")
             }
-            
+
             segments.append("[\(type)]")
-            
+
             if includeMetadata, let metadata = metadata {
                 segments.append("[\(metadata)]")
             }
-            
+
             if details {
                 segments.append("[\(getFile(fileName)):\(lineNum) \(functionName)]")
             }
-            
+
             segments.append(msg)
-            
-            message = segments.joined(separator: " ")            
+
+            message = segments.joined(separator: " ")
         }
 
         guard colored else {
@@ -406,6 +408,8 @@ extension LoggerMessageType {
             return .yellow
         case .error:
             return .red
+        case .debug:
+            return .grey
         default:
             return .foreground
         }
